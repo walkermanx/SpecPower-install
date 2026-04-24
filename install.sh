@@ -39,8 +39,8 @@ CURRENT_DIR="$(pwd)"
 # 结果写入 KEY_RESULT: up / down / enter / space / a / q / 其他字符
 _read_key() {
   local key
-  # 读取单个字符
-  IFS= read -rsn1 key 2>/dev/null || {
+  # 读取单个字符（从 /dev/tty 读取以支持管道执行）
+  IFS= read -rsn1 key </dev/tty 2>/dev/null || {
     # 如果 read 失败，可能是遇到了回车键
     KEY_RESULT=enter
     return
@@ -51,7 +51,7 @@ _read_key() {
     '')  KEY_RESULT=enter ;;  # 空字符串通常表示回车
     $'\e')
       local seq
-      IFS= read -rsn2 seq 2>/dev/null || true
+      IFS= read -rsn2 seq </dev/tty 2>/dev/null || true
       case "$seq" in
         '[A') KEY_RESULT=up ;;
         '[B') KEY_RESULT=down ;;
@@ -429,7 +429,7 @@ else
   # 检查是否已存在 eco-ai-native 目录
   if [[ -d "$CURRENT_DIR/eco-ai-native" ]]; then
     print_warning "检测到已存在 eco-ai-native 目录"
-    read -p "是否删除并重新克隆? [y/N]: " -n 1 -r
+    read -p "是否删除并重新克隆? [y/N]: " -n 1 -r </dev/tty
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
       print_info "删除现有目录..."

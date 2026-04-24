@@ -420,6 +420,13 @@ if [[ -f "$CURRENT_DIR/SKILL.md" ]]; then
   print_success "安装完成! 新建 $created 个，更新 $updated 个"
   print_info "已安装文件: SKILL.md, agents/, references/"
 
+  echo ""
+  print_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  print_success "安装完成!"
+  print_info "你现在可以在支持的 AI 编辑器中使用 SpecPower"
+  print_info "详细使用方法请参考: SKILL.md"
+  print_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
 else
   # ─── 情况 2: 当前目录不存在 SKILL.md，需要克隆仓库 ───
   print_warning "当前目录未检测到 SKILL.md 文件"
@@ -529,31 +536,20 @@ else
   # 检查安装结果
   INSTALL_EXIT_CODE=$?
 
-  if [[ $INSTALL_EXIT_CODE -eq 0 ]]; then
-    echo ""
-    print_success "SpecPower 安装完成!"
+  # 返回到原始目录
+  cd "$CURRENT_DIR"
 
-    # 返回到原始目录
-    cd "$CURRENT_DIR"
-
-    # 清除克隆的仓库
-    print_info "正在清理临时文件..."
-    if rm -rf "$CURRENT_DIR/eco-ai-native"; then
-      print_success "已清除临时仓库目录"
-    else
-      print_warning "清除临时目录失败，你可以手动删除: $CURRENT_DIR/eco-ai-native"
-    fi
+  # 清除克隆的仓库（无论成功或失败都清理）
+  print_info "正在清理临时文件..."
+  if rm -rf "$CURRENT_DIR/eco-ai-native"; then
+    print_success "已清除临时仓库目录"
   else
+    print_warning "清除临时目录失败，你可以手动删除: $CURRENT_DIR/eco-ai-native"
+  fi
+
+  # 根据安装结果决定后续操作
+  if [[ $INSTALL_EXIT_CODE -ne 0 ]]; then
     print_error "安装过程中出现错误"
-    cd "$CURRENT_DIR"
-    print_warning "保留克隆的仓库以供调试: $CURRENT_DIR/eco-ai-native"
     exit 1
   fi
 fi
-
-echo ""
-print_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-print_success "安装完成!"
-print_info "你现在可以在支持的 AI 编辑器中使用 SpecPower"
-print_info "详细使用方法请参考: SKILL.md"
-print_info "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
